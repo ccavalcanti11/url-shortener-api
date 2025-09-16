@@ -1,5 +1,4 @@
 
-
 📘 Project Title: URL Shortener Service API
       
 
@@ -11,11 +10,9 @@
 
 
 🧠 Overview
-
 A concise and scalable RESTful API built with Spring Boot that converts long URLs into short, shareable links. Includes analytics tracking, caching with Redis, and persistence with MongoDB.
 
 🎯 Features
-
 🔗 Shorten long URLs into compact codes
 
 🚀 Redirect users from short URLs to original destinations
@@ -27,37 +24,14 @@ A concise and scalable RESTful API built with Spring Boot that converts long URL
 🗃️ MongoDB for persistent storage
 
 🛠️ Tech Stack
-
-Layer
-
-Technology
-
-Backend
-
-Java + Spring Boot
-
-Caching
-
-Redis
-
-Database
-
-MongoDB
-
-Testing
-
-JUnit + Mockito
-
-Documentation
-
-Swagger/OpenAPI
-
-Deployment
-
-Docker
-
+Layer	Technology
+Backend	Java + Spring Boot
+Caching	Redis
+Database	MongoDB
+Testing	JUnit + Mockito
+Documentation	Swagger/OpenAPI
+Deployment	Docker
 📐 Architecture
-
 Follows a clean layered structure:
 
 Controller: Handles HTTP requests
@@ -67,9 +41,7 @@ Service: Business logic and URL generation
 Repository: MongoDB interactions
 
 📦 API Endpoints
-
 http
-
 POST /api/shorten
 → Request: { "longUrl": "https://example.com" }
 → Response: { "shortUrl": "http://short.ly/abc123" }
@@ -79,28 +51,22 @@ GET /{shortCode}
 
 GET /api/analytics/{shortCode}
 → Returns usage statistics
-
-
 🧪 Testing
-
 Unit tests with JUnit and Mockito
 
 Integration tests for API endpoints
 
 📄 Documentation
-
 Swagger UI available at /swagger-ui.html
 
 Includes request/response models and error codes
 
 🚢 Deployment
-
 Dockerfile included for containerized setup
 
 Run locally with docker-compose up
 
 💼 Why This Project?
-
 Perfect for freelance showcases:
 
 Small scope, big impact
