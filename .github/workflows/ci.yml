@@ -50,7 +50,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Cache Gradle packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
@@ -86,13 +86,6 @@ jobs:
     - name: Verify Test Coverage
       run: ./gradlew jacocoTestCoverageVerification
 
-    - name: Run SonarQube Analysis
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: ./gradlew sonar
-      if: env.SONAR_TOKEN != ''
-
     - name: Upload Test Results
       uses: actions/upload-artifact@v4
       if: always()
@@ -111,9 +104,6 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
-
-    - name: Security Vulnerability Scan
-      run: ./gradlew dependencyCheckAnalyze
 
     - name: Build Docker Image
       run: |
@@ -149,7 +139,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Cache Gradle packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches

@@ -1,12 +1,12 @@
 package com.carloscavalcanti.urlshortner.integration;
 
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequest;
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponse;
-import com.carloscavalcanti.urlshortner.dto.AnalyticsResponse;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequestDTO;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTO;
+import com.carloscavalcanti.urlshortner.dto.AnalyticsResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebMvc
+@AutoConfigureMockMvc
 @Testcontainers
 class UrlShortenerIntegrationTest {
 
@@ -52,7 +52,7 @@ class UrlShortenerIntegrationTest {
     @Test
     void shouldShortenUrlAndRedirect() throws Exception {
         // Given
-        ShortenUrlRequest request = new ShortenUrlRequest();
+        ShortenUrlRequestDTO request = new ShortenUrlRequestDTO();
         request.setLongUrl("https://www.example.com");
 
         // When - Shorten URL
@@ -66,7 +66,7 @@ class UrlShortenerIntegrationTest {
 
         // Then
         String responseContent = result.getResponse().getContentAsString();
-        ShortenUrlResponse response = objectMapper.readValue(responseContent, ShortenUrlResponse.class);
+        ShortenUrlResponseDTO response = objectMapper.readValue(responseContent, ShortenUrlResponseDTO.class);
 
         assertNotNull(response.getShortCode());
         assertEquals("https://www.example.com", response.getOriginalUrl());
@@ -81,7 +81,7 @@ class UrlShortenerIntegrationTest {
     @Test
     void shouldReturnAnalyticsAfterClicks() throws Exception {
         // Given
-        ShortenUrlRequest request = new ShortenUrlRequest();
+        ShortenUrlRequestDTO request = new ShortenUrlRequestDTO();
         request.setLongUrl("https://www.google.com");
 
         // When - Shorten URL
@@ -91,9 +91,9 @@ class UrlShortenerIntegrationTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        ShortenUrlResponse response = objectMapper.readValue(
+        ShortenUrlResponseDTO response = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
-                ShortenUrlResponse.class
+                ShortenUrlResponseDTO.class
         );
 
         // Simulate clicks
@@ -101,7 +101,7 @@ class UrlShortenerIntegrationTest {
                 .andExpect(status().isFound());
 
         mockMvc.perform(get("/" + response.getShortCode()))
-                .andExpected(status().isFound());
+                .andExpect(status().isFound());
 
         // When - Get Analytics
         MvcResult analyticsResult = mockMvc.perform(get("/api/analytics/" + response.getShortCode()))
@@ -112,9 +112,9 @@ class UrlShortenerIntegrationTest {
                 .andReturn();
 
         // Then
-        AnalyticsResponse analytics = objectMapper.readValue(
+        AnalyticsResponseDTO analytics = objectMapper.readValue(
                 analyticsResult.getResponse().getContentAsString(),
-                AnalyticsResponse.class
+                AnalyticsResponseDTO.class
         );
 
         assertEquals(response.getShortCode(), analytics.getShortCode());
@@ -137,7 +137,7 @@ class UrlShortenerIntegrationTest {
 
     @Test
     void shouldValidateUrlFormat() throws Exception {
-        ShortenUrlRequest request = new ShortenUrlRequest();
+        ShortenUrlRequestDTO request = new ShortenUrlRequestDTO();
         request.setLongUrl("invalid-url");
 
         mockMvc.perform(post("/api/shorten")
