@@ -1,8 +1,8 @@
 package com.carloscavalcanti.urlshortner.model;
 
-import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Document(collection = "url_mappings")
 public class UrlMapping {
     
@@ -43,7 +43,17 @@ public class UrlMapping {
         this.clicks = new ArrayList<>();
         this.active = true;
     }
-    
+
+    // Defensive getter - overrides Lombok's generated getter
+    public List<ClickInfo> getClicks() {
+        return clicks != null ? new ArrayList<>(clicks) : new ArrayList<>();
+    }
+
+    // Defensive setter - overrides Lombok's generated setter
+    public void setClicks(List<ClickInfo> clicks) {
+        this.clicks = clicks != null ? new ArrayList<>(clicks) : new ArrayList<>();
+    }
+
     public void incrementClickCount() {
         this.clickCount++;
         this.clicks.add(new ClickInfo(LocalDateTime.now()));
