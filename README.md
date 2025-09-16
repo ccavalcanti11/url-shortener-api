@@ -3,7 +3,7 @@
       
 
 ![Java](https://img.shields.io/badge/Java-21-blue.svg)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.5-brightgreen.svg)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.3-brightgreen.svg)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Enabled-green.svg)
 ![Redis](https://img.shields.io/badge/Redis-Caching-red.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
