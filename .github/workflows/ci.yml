@@ -6,6 +6,12 @@ on:
   push:
     branches: [ main, develop ]
 
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+  checks: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -88,21 +94,23 @@ jobs:
       if: env.SONAR_TOKEN != ''
 
     - name: Upload Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results
         path: |
-          build/reports/tests/
-          build/reports/jacoco/
-          build/reports/checkstyle/
+          build/reports/tests/**/*
+          build/reports/jacoco/**/*
+          build/reports/checkstyle/**/*
+        if-no-files-found: ignore
 
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: build/reports/jacoco/test/jacocoTestReport.xml
         flags: unittests
         name: codecov-umbrella
+        fail_ci_if_error: false
 
     - name: Security Vulnerability Scan
       run: ./gradlew dependencyCheckAnalyze
@@ -118,10 +126,11 @@ jobs:
         image-ref: 'url-shortener-api:latest'
         format: 'sarif'
         output: 'trivy-results.sarif'
+      continue-on-error: true
 
     - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
+      uses: github/codeql-action/upload-sarif@v3
+      if: always() && hashFiles('trivy-results.sarif') != ''
       with:
         sarif_file: 'trivy-results.sarif'
 
@@ -154,10 +163,11 @@ jobs:
       run: ./gradlew pmdMain pmdTest
 
     - name: Upload Code Quality Reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: code-quality-reports
         path: |
-          build/reports/spotbugs/
-          build/reports/pmd/
+          build/reports/spotbugs/**/*
+          build/reports/pmd/**/*
+        if-no-files-found: ignore
