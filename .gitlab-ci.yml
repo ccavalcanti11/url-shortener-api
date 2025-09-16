@@ -1,0 +1,121 @@
+stages:
+  - build
+  - test
+  - quality
+  - security
+  - deploy
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+services:
+  - mongo:7.0
+  - redis:7.2-alpine
+
+before_script:
+  - chmod +x ./gradlew
+
+build:
+  stage: build
+  image: openjdk:21-jdk-slim
+  script:
+    - ./gradlew clean build -x test
+  artifacts:
+    paths:
+      - build/libs/*.jar
+    expire_in: 1 hour
+
+unit-tests:
+  stage: test
+  image: openjdk:21-jdk-slim
+  variables:
+    SPRING_DATA_MONGODB_HOST: mongo
+    SPRING_DATA_REDIS_HOST: redis
+  script:
+    - ./gradlew test
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - build/test-results/test/TEST-*.xml
+    paths:
+      - build/reports/tests/
+      - build/reports/jacoco/
+    expire_in: 1 week
+  coverage: '/Total.*?([0-9]{1,3})%/'
+
+integration-tests:
+  stage: test
+  image: openjdk:21-jdk-slim
+  variables:
+    SPRING_DATA_MONGODB_HOST: mongo
+    SPRING_DATA_REDIS_HOST: redis
+  script:
+    - ./gradlew integrationTest
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - build/test-results/integrationTest/TEST-*.xml
+    expire_in: 1 week
+
+code-quality:
+  stage: quality
+  image: openjdk:21-jdk-slim
+  script:
+    - ./gradlew checkstyleMain checkstyleTest
+    - ./gradlew pmdMain pmdTest
+    - ./gradlew spotbugsMain spotbugsTest
+  artifacts:
+    when: always
+    paths:
+      - build/reports/checkstyle/
+      - build/reports/pmd/
+      - build/reports/spotbugs/
+    expire_in: 1 week
+
+sonarqube-check:
+  stage: quality
+  image: openjdk:21-jdk-slim
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - ./gradlew sonar
+  only:
+    - merge_requests
+    - main
+    - develop
+
+security-scan:
+  stage: security
+  image: openjdk:21-jdk-slim
+  script:
+    - ./gradlew dependencyCheckAnalyze
+  artifacts:
+    when: always
+    paths:
+      - build/reports/dependency-check-report.html
+    expire_in: 1 week
+  allow_failure: true
+
+docker-build:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker build -t $CI_REGISTRY_IMAGE:latest .
+  only:
+    - main
