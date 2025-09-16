@@ -8,8 +8,6 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-Enabled-green.svg)
 ![Redis](https://img.shields.io/badge/Redis-Caching-red.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
-![Build](https://github.com/your-username/url-shortener/actions/workflows/build.yml/badge.svg)
-![License](https://img.shields.io/github/license/your-username/url-shortener)
 
 
 🧠 Overview
