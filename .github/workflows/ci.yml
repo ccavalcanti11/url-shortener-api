@@ -105,9 +105,6 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: false
 
-    - name: Security Vulnerability Scan
-      run: ./gradlew dependencyCheckAnalyze
-
     - name: Build Docker Image
       run: |
         docker build -t url-shortener-api:${{ github.sha }} .

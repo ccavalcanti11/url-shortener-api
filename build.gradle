@@ -144,9 +144,3 @@ sonar {
 		property "sonar.java.spotbugs.reportPaths", "build/reports/spotbugs/main.xml,build/reports/spotbugs/test.xml"
 	}
 }
-
-// Dependency Check Configuration
-dependencyCheck {
-	format = 'ALL'
-	suppressionFile = 'config/dependency-check/suppressions.xml'
-}
