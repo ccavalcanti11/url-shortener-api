@@ -1,8 +1,8 @@
 package com.carloscavalcanti.urlshortner.controller;
 
-import com.carloscavalcanti.urlshortner.dto.AnalyticsResponse;
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequest;
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponse;
+import com.carloscavalcanti.urlshortner.dto.AnalyticsResponseDTO;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequestDTO;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTO;
 import com.carloscavalcanti.urlshortner.service.UrlShortenerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,17 +34,17 @@ public class UrlShortenerController {
     @Operation(summary = "Shorten a URL", description = "Create a short URL from a long URL")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "URL shortened successfully",
-                content = @Content(schema = @Schema(implementation = ShortenUrlResponse.class))),
+                content = @Content(schema = @Schema(implementation = ShortenUrlResponseDTO.class))),
         @ApiResponse(responseCode = "400", description = "Invalid URL format"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<ShortenUrlResponse> shortenUrl(
-            @Valid @RequestBody ShortenUrlRequest request) {
+    public ResponseEntity<ShortenUrlResponseDTO> shortenUrl(
+            @Valid @RequestBody final ShortenUrlRequestDTO request) {
 
         log.info("Received request to shorten URL: {}", request.getLongUrl());
 
         try {
-            ShortenUrlResponse response = urlShortenerService.shortenUrl(request);
+            ShortenUrlResponseDTO response = urlShortenerService.shortenUrl(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             log.error("Error shortening URL: {}", request.getLongUrl(), e);
@@ -59,8 +59,8 @@ public class UrlShortenerController {
         @ApiResponse(responseCode = "404", description = "Short code not found")
     })
     public ResponseEntity<Void> redirectToOriginalUrl(
-            @Parameter(description = "Short code identifier") @PathVariable String shortCode,
-            HttpServletRequest request) {
+            @Parameter(description = "Short code identifier") @PathVariable final String shortCode,
+            final HttpServletRequest request) {
 
         String userAgent = request.getHeader("User-Agent");
         String ipAddress = getClientIpAddress(request);
@@ -84,15 +84,15 @@ public class UrlShortenerController {
     @Operation(summary = "Get URL analytics", description = "Retrieve analytics data for a short URL")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Analytics retrieved successfully",
-                content = @Content(schema = @Schema(implementation = AnalyticsResponse.class))),
+                content = @Content(schema = @Schema(implementation = AnalyticsResponseDTO.class))),
         @ApiResponse(responseCode = "404", description = "Short code not found")
     })
-    public ResponseEntity<AnalyticsResponse> getAnalytics(
-            @Parameter(description = "Short code identifier") @PathVariable String shortCode) {
+    public ResponseEntity<AnalyticsResponseDTO> getAnalytics(
+            @Parameter(description = "Short code identifier") @PathVariable final String shortCode) {
 
         log.info("Analytics request for short code: {}", shortCode);
 
-        AnalyticsResponse analytics = urlShortenerService.getAnalytics(shortCode);
+        AnalyticsResponseDTO analytics = urlShortenerService.getAnalytics(shortCode);
 
         if (analytics == null) {
             log.warn("Analytics not found for short code: {}", shortCode);
@@ -102,7 +102,7 @@ public class UrlShortenerController {
         return ResponseEntity.ok(analytics);
     }
 
-    private String getClientIpAddress(HttpServletRequest request) {
+    private String getClientIpAddress(final HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
             return xForwardedFor.split(",")[0].trim();

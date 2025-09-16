@@ -15,7 +15,7 @@ public class ClickInfo {
     private String userAgent;
     private String ipAddress;
 
-    public ClickInfo(LocalDateTime timestamp) {
+    public ClickInfo(final LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 }

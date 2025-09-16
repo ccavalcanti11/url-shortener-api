@@ -1,8 +1,8 @@
 package com.carloscavalcanti.urlshortner.service;
 
-import com.carloscavalcanti.urlshortner.dto.AnalyticsResponse;
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequest;
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponse;
+import com.carloscavalcanti.urlshortner.dto.AnalyticsResponseDTO;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequestDTO;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTO;
 import com.carloscavalcanti.urlshortner.model.ClickInfo;
 import com.carloscavalcanti.urlshortner.model.UrlMapping;
 import com.carloscavalcanti.urlshortner.repository.UrlMappingRepository;
@@ -32,7 +32,7 @@ public class UrlShortenerService {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public ShortenUrlResponse shortenUrl(ShortenUrlRequest request) {
+    public ShortenUrlResponseDTO shortenUrl(final ShortenUrlRequestDTO request) {
         String originalUrl = request.getLongUrl();
 
         // Check if URL already exists
@@ -40,10 +40,10 @@ public class UrlShortenerService {
         if (existingMapping.isPresent() && existingMapping.get().isActive()) {
             UrlMapping mapping = existingMapping.get();
             log.info("URL already exists, returning existing short code: {}", mapping.getShortCode());
-            return new ShortenUrlResponse(
-                baseUrl + "/" + mapping.getShortCode(),
-                mapping.getOriginalUrl(),
-                mapping.getShortCode()
+            return new ShortenUrlResponseDTO(
+                    baseUrl + "/" + mapping.getShortCode(),
+                    mapping.getOriginalUrl(),
+                    mapping.getShortCode()
             );
         }
 
@@ -56,20 +56,20 @@ public class UrlShortenerService {
 
         log.info("Created new URL mapping: {} -> {}", shortCode, originalUrl);
 
-        return new ShortenUrlResponse(
-            baseUrl + "/" + shortCode,
-            originalUrl,
-            shortCode
+        return new ShortenUrlResponseDTO(
+                baseUrl + "/" + shortCode,
+                originalUrl,
+                shortCode
         );
     }
 
     @Cacheable(value = "urlMappings", key = "#shortCode")
-    public Optional<UrlMapping> getOriginalUrl(String shortCode) {
+    public Optional<UrlMapping> getOriginalUrl(final String shortCode) {
         return urlMappingRepository.findByShortCode(shortCode);
     }
 
-    public String redirectAndTrack(String shortCode, String userAgent, String ipAddress) {
-        Optional<UrlMapping> mappingOpt = getOriginalUrl(shortCode);
+    public String redirectAndTrack(final String shortCode, final String userAgent, final String ipAddress) {
+        Optional<UrlMapping> mappingOpt = urlMappingRepository.findByShortCode(shortCode);
 
         if (mappingOpt.isEmpty() || !mappingOpt.get().isActive()) {
             log.warn("Short code not found or inactive: {}", shortCode);
@@ -85,12 +85,14 @@ public class UrlShortenerService {
 
         urlMappingRepository.save(mapping);
 
-        log.info("Redirecting {} to {}, total clicks: {}", shortCode, mapping.getOriginalUrl(), mapping.getClickCount());
+        log.info("Redirecting {} to {}, total clicks: {}",
+                shortCode, mapping.getOriginalUrl(), mapping.getClickCount()
+        );
 
         return mapping.getOriginalUrl();
     }
 
-    public AnalyticsResponse getAnalytics(String shortCode) {
+    public AnalyticsResponseDTO getAnalytics(final String shortCode) {
         Optional<UrlMapping> mappingOpt = urlMappingRepository.findByShortCode(shortCode);
 
         if (mappingOpt.isEmpty()) {
@@ -100,13 +102,13 @@ public class UrlShortenerService {
 
         UrlMapping mapping = mappingOpt.get();
 
-        return new AnalyticsResponse(
-            mapping.getShortCode(),
-            mapping.getOriginalUrl(),
-            mapping.getClickCount(),
-            mapping.getCreatedAt(),
-            mapping.getClicks(),
-            mapping.isActive()
+        return new AnalyticsResponseDTO(
+                mapping.getShortCode(),
+                mapping.getOriginalUrl(),
+                mapping.getClickCount(),
+                mapping.getCreatedAt(),
+                mapping.getClicks(),
+                mapping.isActive()
         );
     }
 
@@ -119,7 +121,7 @@ public class UrlShortenerService {
         return shortCode;
     }
 
-    private String generateRandomString(int length) {
+    private String generateRandomString(final int length) {
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
             sb.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));

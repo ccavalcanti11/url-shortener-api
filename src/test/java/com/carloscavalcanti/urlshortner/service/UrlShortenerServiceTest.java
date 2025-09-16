@@ -1,8 +1,8 @@
 package com.carloscavalcanti.urlshortner.service;
 
-import com.carloscavalcanti.urlshortner.dto.AnalyticsResponse;
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequest;
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponse;
+import com.carloscavalcanti.urlshortner.dto.AnalyticsResponseDTO;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequestDTO;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTO;
 import com.carloscavalcanti.urlshortner.model.UrlMapping;
 import com.carloscavalcanti.urlshortner.repository.UrlMappingRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +39,7 @@ class UrlShortenerServiceTest {
     void shouldShortenNewUrl() {
         // Given
         String originalUrl = "https://www.example.com";
-        ShortenUrlRequest request = new ShortenUrlRequest();
+        ShortenUrlRequestDTO request = new ShortenUrlRequestDTO();
         request.setLongUrl(originalUrl);
 
         when(urlMappingRepository.findByOriginalUrl(originalUrl)).thenReturn(Optional.empty());
@@ -47,7 +47,7 @@ class UrlShortenerServiceTest {
         when(urlMappingRepository.save(any(UrlMapping.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        ShortenUrlResponse response = urlShortenerService.shortenUrl(request);
+        ShortenUrlResponseDTO response = urlShortenerService.shortenUrl(request);
 
         // Then
         assertNotNull(response);
@@ -64,14 +64,14 @@ class UrlShortenerServiceTest {
         // Given
         String originalUrl = "https://www.example.com";
         String existingShortCode = "abc123";
-        ShortenUrlRequest request = new ShortenUrlRequest();
+        ShortenUrlRequestDTO request = new ShortenUrlRequestDTO();
         request.setLongUrl(originalUrl);
 
         UrlMapping existingMapping = new UrlMapping(existingShortCode, originalUrl);
         when(urlMappingRepository.findByOriginalUrl(originalUrl)).thenReturn(Optional.of(existingMapping));
 
         // When
-        ShortenUrlResponse response = urlShortenerService.shortenUrl(request);
+        ShortenUrlResponseDTO response = urlShortenerService.shortenUrl(request);
 
         // Then
         assertNotNull(response);
@@ -127,7 +127,7 @@ class UrlShortenerServiceTest {
         when(urlMappingRepository.findByShortCode(shortCode)).thenReturn(Optional.of(mapping));
 
         // When
-        AnalyticsResponse response = urlShortenerService.getAnalytics(shortCode);
+        AnalyticsResponseDTO response = urlShortenerService.getAnalytics(shortCode);
 
         // Then
         assertNotNull(response);
@@ -144,7 +144,7 @@ class UrlShortenerServiceTest {
         when(urlMappingRepository.findByShortCode(shortCode)).thenReturn(Optional.empty());
 
         // When
-        AnalyticsResponse response = urlShortenerService.getAnalytics(shortCode);
+        AnalyticsResponseDTO response = urlShortenerService.getAnalytics(shortCode);
 
         // Then
         assertNull(response);

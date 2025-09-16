@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class ShortenUrlResponse {
+public class ShortenUrlResponseDTO {
 
     private String shortUrl;
     private String originalUrl;

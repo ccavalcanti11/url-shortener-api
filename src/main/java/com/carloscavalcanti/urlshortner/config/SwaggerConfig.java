@@ -22,7 +22,9 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("URL Shortener API")
-                        .description("A concise and scalable RESTful API built with Spring Boot that converts long URLs into short, shareable links. Includes analytics tracking, caching with Redis, and persistence with MongoDB.")
+                        .description("A concise and scalable RESTful API built with Spring Boot " +
+                                "that converts long URLs into short, shareable links. Includes analytics tracking, " +
+                                "caching with Redis, and persistence with MongoDB.")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Carlos Cavalcanti")

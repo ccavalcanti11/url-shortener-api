@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class AnalyticsResponse {
+public class AnalyticsResponseDTO {
 
     private String shortCode;
     private String originalUrl;
@@ -20,8 +20,13 @@ public class AnalyticsResponse {
     private boolean active;
 
     // Constructor with defensive copying
-    public AnalyticsResponse(String shortCode, String originalUrl, Long totalClicks,
-                           LocalDateTime createdAt, List<ClickInfo> recentClicks, boolean active) {
+    public AnalyticsResponseDTO(final String shortCode,
+                                final String originalUrl,
+                                final Long totalClicks,
+                                final LocalDateTime createdAt,
+                                final List<ClickInfo> recentClicks,
+                                final boolean active) {
+
         this.shortCode = shortCode;
         this.originalUrl = originalUrl;
         this.totalClicks = totalClicks;
@@ -36,7 +41,7 @@ public class AnalyticsResponse {
     }
 
     // Defensive setter
-    public void setRecentClicks(List<ClickInfo> recentClicks) {
+    public void setRecentClicks(final List<ClickInfo> recentClicks) {
         this.recentClicks = recentClicks != null ? new ArrayList<>(recentClicks) : new ArrayList<>();
     }
 }

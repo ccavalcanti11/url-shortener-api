@@ -35,7 +35,7 @@ public class UrlMapping {
     
     private boolean active = true;
     
-    public UrlMapping(String shortCode, String originalUrl) {
+    public UrlMapping(final String shortCode, final String originalUrl) {
         this.shortCode = shortCode;
         this.originalUrl = originalUrl;
         this.createdAt = LocalDateTime.now();
@@ -50,7 +50,7 @@ public class UrlMapping {
     }
 
     // Defensive setter - overrides Lombok's generated setter
-    public void setClicks(List<ClickInfo> clicks) {
+    public void setClicks(final List<ClickInfo> clicks) {
         this.clicks = clicks != null ? new ArrayList<>(clicks) : new ArrayList<>();
     }
 
