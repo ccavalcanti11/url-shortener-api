@@ -2,7 +2,7 @@
 📘 Project Title: URL Shortener Service API
       
 
-![Java](https://img.shields.io/badge/Java-17-blue.svg)
+![Java](https://img.shields.io/badge/Java-21-blue.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.1.0-brightgreen.svg)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Enabled-green.svg)
 ![Redis](https://img.shields.io/badge/Redis-Caching-red.svg)
