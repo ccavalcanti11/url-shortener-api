@@ -44,7 +44,7 @@ public class UrlShortenerController {
         log.info("Received request to shorten URL: {}", request.getLongUrl());
 
         try {
-            ShortenUrlResponseDTO response = urlShortenerService.shortenUrl(request);
+            var response = urlShortenerService.shortenUrl(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             log.error("Error shortening URL: {}", request.getLongUrl(), e);
@@ -62,19 +62,19 @@ public class UrlShortenerController {
             @Parameter(description = "Short code identifier") @PathVariable final String shortCode,
             final HttpServletRequest request) {
 
-        String userAgent = request.getHeader("User-Agent");
-        String ipAddress = getClientIpAddress(request);
+        var userAgent = request.getHeader("User-Agent");
+        var ipAddress = getClientIpAddress(request);
 
         log.info("Redirect request for short code: {} from IP: {}", shortCode, ipAddress);
 
-        String originalUrl = urlShortenerService.redirectAndTrack(shortCode, userAgent, ipAddress);
+        var originalUrl = urlShortenerService.redirectAndTrack(shortCode, userAgent, ipAddress);
 
         if (originalUrl == null) {
             log.warn("Short code not found: {}", shortCode);
             return ResponseEntity.notFound().build();
         }
 
-        HttpHeaders headers = new HttpHeaders();
+        var headers = new HttpHeaders();
         headers.setLocation(URI.create(originalUrl));
 
         return ResponseEntity.status(HttpStatus.FOUND).headers(headers).build();
@@ -92,23 +92,23 @@ public class UrlShortenerController {
 
         log.info("Analytics request for short code: {}", shortCode);
 
-        AnalyticsResponseDTO analytics = urlShortenerService.getAnalytics(shortCode);
+        var analyticsDTO = urlShortenerService.getAnalytics(shortCode);
 
-        if (analytics == null) {
+        if (analyticsDTO == null) {
             log.warn("Analytics not found for short code: {}", shortCode);
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(analytics);
+        return ResponseEntity.ok(analyticsDTO);
     }
 
     private String getClientIpAddress(final HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        var xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
             return xForwardedFor.split(",")[0].trim();
         }
 
-        String xRealIp = request.getHeader("X-Real-IP");
+        var xRealIp = request.getHeader("X-Real-IP");
         if (xRealIp != null && !xRealIp.isEmpty()) {
             return xRealIp;
         }

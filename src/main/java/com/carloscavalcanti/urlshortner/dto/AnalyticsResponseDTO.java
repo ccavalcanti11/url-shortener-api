@@ -1,7 +1,9 @@
 package com.carloscavalcanti.urlshortner.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Singular;
 import com.carloscavalcanti.urlshortner.model.ClickInfo;
 
 import java.time.LocalDateTime;
@@ -10,12 +12,14 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 public class AnalyticsResponseDTO {
 
     private String shortCode;
     private String originalUrl;
     private Long totalClicks;
     private LocalDateTime createdAt;
+    @Singular
     private List<ClickInfo> recentClicks;
     private boolean active;
 

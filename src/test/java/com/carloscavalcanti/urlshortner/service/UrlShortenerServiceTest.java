@@ -1,8 +1,10 @@
 package com.carloscavalcanti.urlshortner.service;
 
 import com.carloscavalcanti.urlshortner.dto.AnalyticsResponseDTO;
+import com.carloscavalcanti.urlshortner.dto.AnalyticsResponseDTOMapper;
 import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequestDTO;
 import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTO;
+import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTOMapper;
 import com.carloscavalcanti.urlshortner.model.UrlMapping;
 import com.carloscavalcanti.urlshortner.repository.UrlMappingRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +28,12 @@ class UrlShortenerServiceTest {
     @Mock
     private UrlMappingRepository urlMappingRepository;
 
+    @Mock
+    private AnalyticsResponseDTOMapper analyticsMapper;
+
+    @Mock
+    private ShortenUrlResponseDTOMapper shortenMapper;
+
     @InjectMocks
     private UrlShortenerService urlShortenerService;
 
@@ -38,13 +46,21 @@ class UrlShortenerServiceTest {
     @Test
     void shouldShortenNewUrl() {
         // Given
-        String originalUrl = "https://www.example.com";
-        ShortenUrlRequestDTO request = new ShortenUrlRequestDTO();
+        var originalUrl = "https://www.example.com";
+        var request = new ShortenUrlRequestDTO();
         request.setLongUrl(originalUrl);
+
+        var savedMapping = new UrlMapping("abc123", originalUrl);
+        var expectedResponse = ShortenUrlResponseDTO.builder()
+                .shortUrl("http://localhost:8080/abc123")
+                .originalUrl(originalUrl)
+                .shortCode("abc123")
+                .build();
 
         when(urlMappingRepository.findByOriginalUrl(originalUrl)).thenReturn(Optional.empty());
         when(urlMappingRepository.existsByShortCode(anyString())).thenReturn(false);
-        when(urlMappingRepository.save(any(UrlMapping.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(urlMappingRepository.save(any(UrlMapping.class))).thenReturn(savedMapping);
+        when(shortenMapper.toDTO(any(UrlMapping.class), anyString())).thenReturn(expectedResponse);
 
         // When
         ShortenUrlResponseDTO response = urlShortenerService.shortenUrl(request);
@@ -54,9 +70,10 @@ class UrlShortenerServiceTest {
         assertEquals(originalUrl, response.getOriginalUrl());
         assertTrue(response.getShortUrl().startsWith("http://localhost:8080/"));
         assertNotNull(response.getShortCode());
-        assertEquals(6, response.getShortCode().length());
+        assertEquals("abc123", response.getShortCode());
 
         verify(urlMappingRepository).save(any(UrlMapping.class));
+        verify(shortenMapper).toDTO(any(UrlMapping.class), eq("http://localhost:8080"));
     }
 
     @Test
@@ -68,7 +85,14 @@ class UrlShortenerServiceTest {
         request.setLongUrl(originalUrl);
 
         UrlMapping existingMapping = new UrlMapping(existingShortCode, originalUrl);
+        ShortenUrlResponseDTO expectedResponse = ShortenUrlResponseDTO.builder()
+                .shortUrl("http://localhost:8080/" + existingShortCode)
+                .originalUrl(originalUrl)
+                .shortCode(existingShortCode)
+                .build();
+
         when(urlMappingRepository.findByOriginalUrl(originalUrl)).thenReturn(Optional.of(existingMapping));
+        when(shortenMapper.toDTO(existingMapping, "http://localhost:8080")).thenReturn(expectedResponse);
 
         // When
         ShortenUrlResponseDTO response = urlShortenerService.shortenUrl(request);
@@ -80,6 +104,7 @@ class UrlShortenerServiceTest {
         assertEquals("http://localhost:8080/" + existingShortCode, response.getShortUrl());
 
         verify(urlMappingRepository, never()).save(any(UrlMapping.class));
+        verify(shortenMapper).toDTO(existingMapping, "http://localhost:8080");
     }
 
     @Test
@@ -124,7 +149,15 @@ class UrlShortenerServiceTest {
         UrlMapping mapping = new UrlMapping(shortCode, originalUrl);
         mapping.setClickCount(5L);
 
+        var expectedResponse = AnalyticsResponseDTO.builder()
+                .shortCode(shortCode)
+                .originalUrl(originalUrl)
+                .totalClicks(5L)
+                .active(true)
+                .build();
+
         when(urlMappingRepository.findByShortCode(shortCode)).thenReturn(Optional.of(mapping));
+        when(analyticsMapper.toDTO(mapping)).thenReturn(expectedResponse);
 
         // When
         AnalyticsResponseDTO response = urlShortenerService.getAnalytics(shortCode);
@@ -135,6 +168,8 @@ class UrlShortenerServiceTest {
         assertEquals(originalUrl, response.getOriginalUrl());
         assertEquals(5L, response.getTotalClicks());
         assertTrue(response.isActive());
+
+        verify(analyticsMapper).toDTO(mapping);
     }
 
     @Test

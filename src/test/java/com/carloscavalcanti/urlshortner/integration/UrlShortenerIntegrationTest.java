@@ -1,8 +1,6 @@
 package com.carloscavalcanti.urlshortner.integration;
 
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequestDTO;
-import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTO;
-import com.carloscavalcanti.urlshortner.dto.AnalyticsResponseDTO;
+import com.carloscavalcanti.urlshortner.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +55,8 @@ class UrlShortenerIntegrationTest {
 
         // When - Shorten URL
         MvcResult result = mockMvc.perform(post("/api/shorten")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.originalUrl").value("https://www.example.com"))
                 .andExpect(jsonPath("$.shortCode").exists())
@@ -86,8 +84,8 @@ class UrlShortenerIntegrationTest {
 
         // When - Shorten URL
         MvcResult result = mockMvc.perform(post("/api/shorten")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -141,8 +139,8 @@ class UrlShortenerIntegrationTest {
         request.setLongUrl("invalid-url");
 
         mockMvc.perform(post("/api/shorten")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 }
