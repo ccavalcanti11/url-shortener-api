@@ -7,7 +7,6 @@ import com.carloscavalcanti.urlshortner.repository.UrlMappingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -42,29 +41,22 @@ public class UrlShortenerService {
             log.info("URL already exists, returning existing short code: {}", mapping.getShortCode());
 
             return shortenMapper.toDTO(mapping, baseUrl);
-
         }
 
         // Generate unique short code
         var shortCode = generateUniqueShortCode();
 
         // Create and save mapping
-        var urlMapping = new UrlMapping(shortCode, originalUrl);
+        var urlMapping = UrlMapping.builder()
+                .shortCode(shortCode)
+                .originalUrl(originalUrl)
+                .build();
+
         urlMappingRepository.save(urlMapping);
 
         log.info("Created new URL mapping: {} -> {}", shortCode, originalUrl);
 
         return shortenMapper.toDTO(urlMapping, baseUrl);
-//        return new ShortenUrlResponseDTO(
-//                baseUrl + "/" + shortCode,
-//                originalUrl,
-//                shortCode
-//        );
-    }
-
-    @Cacheable(value = "urlMappings", key = "#shortCode")
-    public Optional<UrlMapping> getOriginalUrl(final String shortCode) {
-        return urlMappingRepository.findByShortCode(shortCode);
     }
 
     public String redirectAndTrack(final String shortCode,

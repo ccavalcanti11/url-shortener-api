@@ -1,8 +1,6 @@
 package com.carloscavalcanti.urlshortner.model;
 
-import lombok.NoArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -13,8 +11,9 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Document(collection = "url_mappings")
+@Builder
+@NoArgsConstructor
 public class UrlMapping {
     
     @Id
@@ -25,23 +24,41 @@ public class UrlMapping {
     
     private String originalUrl;
     
-    private LocalDateTime createdAt;
-    
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     private LocalDateTime expiresAt;
     
+    @Builder.Default
     private Long clickCount = 0L;
     
+    @Builder.Default
     private List<ClickInfo> clicks = new ArrayList<>();
     
+    @Builder.Default
     private boolean active = true;
-    
-    public UrlMapping(final String shortCode, final String originalUrl) {
+
+    // Custom all-args constructor with defensive copying
+    public UrlMapping(String id, String shortCode, String originalUrl,
+                     LocalDateTime createdAt, LocalDateTime expiresAt,
+                     Long clickCount, List<ClickInfo> clicks, boolean active) {
+        this.id = id;
         this.shortCode = shortCode;
         this.originalUrl = originalUrl;
-        this.createdAt = LocalDateTime.now();
-        this.clickCount = 0L;
-        this.clicks = new ArrayList<>();
-        this.active = true;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
+        this.clickCount = clickCount;
+        this.clicks = clicks != null ? new ArrayList<>(clicks) : new ArrayList<>();
+        this.active = active;
+    }
+
+    // Custom builder class to handle defensive copying
+    public static class UrlMappingBuilder {
+        public UrlMappingBuilder clicks(List<ClickInfo> clicks) {
+            this.clicks$value = clicks != null ? new ArrayList<>(clicks) : new ArrayList<>();
+            this.clicks$set = true;
+            return this;
+        }
     }
 
     // Defensive getter - overrides Lombok's generated getter

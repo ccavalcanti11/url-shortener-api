@@ -5,6 +5,7 @@ import com.carloscavalcanti.urlshortner.dto.AnalyticsResponseDTOMapper;
 import com.carloscavalcanti.urlshortner.dto.ShortenUrlRequestDTO;
 import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTO;
 import com.carloscavalcanti.urlshortner.dto.ShortenUrlResponseDTOMapper;
+import com.carloscavalcanti.urlshortner.fixture.UrlMappingFixture;
 import com.carloscavalcanti.urlshortner.model.UrlMapping;
 import com.carloscavalcanti.urlshortner.repository.UrlMappingRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,12 @@ class UrlShortenerServiceTest {
         var request = new ShortenUrlRequestDTO();
         request.setLongUrl(originalUrl);
 
-        var savedMapping = new UrlMapping("abc123", originalUrl);
+//        var savedMapping = new UrlMapping("abc123", originalUrl);
+        var savedMapping = UrlMapping.builder()
+                .shortCode("abc123")
+                .originalUrl(originalUrl)
+                .build();
+
         var expectedResponse = ShortenUrlResponseDTO.builder()
                 .shortUrl("http://localhost:8080/abc123")
                 .originalUrl(originalUrl)
@@ -81,10 +87,13 @@ class UrlShortenerServiceTest {
         // Given
         String originalUrl = "https://www.example.com";
         String existingShortCode = "abc123";
+
         ShortenUrlRequestDTO request = new ShortenUrlRequestDTO();
         request.setLongUrl(originalUrl);
 
-        UrlMapping existingMapping = new UrlMapping(existingShortCode, originalUrl);
+//        UrlMapping existingMapping = new UrlMapping(existingShortCode, originalUrl);
+        var existingMapping = UrlMappingFixture.createUrlMapping().build();
+
         ShortenUrlResponseDTO expectedResponse = ShortenUrlResponseDTO.builder()
                 .shortUrl("http://localhost:8080/" + existingShortCode)
                 .originalUrl(originalUrl)
@@ -115,7 +124,8 @@ class UrlShortenerServiceTest {
         String userAgent = "Mozilla/5.0";
         String ipAddress = "192.168.1.1";
 
-        UrlMapping mapping = new UrlMapping(shortCode, originalUrl);
+        var mapping = UrlMappingFixture.createUrlMapping().build();
+
         when(urlMappingRepository.findByShortCode(shortCode)).thenReturn(Optional.of(mapping));
         when(urlMappingRepository.save(any(UrlMapping.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -146,7 +156,12 @@ class UrlShortenerServiceTest {
         // Given
         String shortCode = "abc123";
         String originalUrl = "https://www.example.com";
-        UrlMapping mapping = new UrlMapping(shortCode, originalUrl);
+//        UrlMapping mapping = new UrlMapping(shortCode, originalUrl);
+        var mapping = UrlMapping.builder()
+                .shortCode(shortCode)
+                .originalUrl(originalUrl)
+                .build();
+
         mapping.setClickCount(5L);
 
         var expectedResponse = AnalyticsResponseDTO.builder()
