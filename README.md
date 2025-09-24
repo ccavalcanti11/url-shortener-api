@@ -5,6 +5,7 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-Enabled-green.svg)
 ![Redis](https://img.shields.io/badge/Redis-Caching-red.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
+![Build](https://github.com/ccavalcanti11/url-shortener-api/actions/workflows/build.yml/badge.svg)
 
 ## 📋 Table of Contents
 - [🧠 Overview](#-overview)
